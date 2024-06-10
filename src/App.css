@@ -40,11 +40,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-/* input{
-  border: 1px solid rgba(128, 128, 128, 0.226);
-  border-radius: 5px;
-  padding: 5px;
-} */
+input{
+  height: 40px;
+}
 .title{
   /* background-color: #1cb800 */
   box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
