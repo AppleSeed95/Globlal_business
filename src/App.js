@@ -1,18 +1,15 @@
 import './App.css';
-
+import Login from './components/login';
+import EffectTrigger from './components/util/effectTrigger';
 
 function App() {
   return (
     <div className="App">
+      <EffectTrigger />
+      <img src='/img/login.jpg' alt='' className='bg fixed w-[100vw] h-[100vh] top-0 left-0' />
       <div className='w-[60%] flex flex-col gap-[10px] mx-auto mt-[100px] p-[20px] pt-[100px] bg-white rounded-lg relative shadow-lg'>
-        <div className='mx-auto bg-[#25a0f7] w-[30%] left-[35%] shadow-lg text-white rounded-lg p-[30px] px-[50px] text-[30px] absolute top-[-50px]'>Live Pocket</div>
-        <div className='flex '>
-          <div className='w-full  flex flex-col gap-[10px]'>
-            <input placeholder='メールアドレスを入力' className='h-[40px] shadow-sm round-sm'></input>
-            <input placeholder='パスワードを入力してください' className='h-[40px] shadow-sm round-sm'></input>
-          </div>
-          <button className='w-[30%] mx-[10px] grow bg-[#25a0f7] shadow-lg text-white rounded-lg'>ログイン</button>
-        </div>
+        <div className='title mx-auto bg-[#1cb800] w-[30%] left-[35%] text-white rounded-lg p-[30px] px-[50px] text-[30px] absolute top-[-50px]'>Live Pocket</div>
+        <Login />
         <div className='flex '>
           <div className='w-full flex flex-col gap-[10px]'>
             <input placeholder='入力URL' className='h-[40px] shadow-sm round-sm'></input>

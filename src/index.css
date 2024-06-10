@@ -11,12 +11,3 @@ body {
   background-color: #f7f7f7;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-input{
-  border: 1px solid rgba(128, 128, 128, 0.226);
-  border-radius: 5px;
-  padding: 5px;
-}
