@@ -63,7 +63,6 @@ function Login() {
             {contextHolder}
             <form className='w-full flex' onSubmit={handleSubmit(onSubmit, onError)}>
                 <div className='w-full flex flex-col gap-[10px]'>
-
                     <div
                         className="w-full pr-[10px] relative input-effect">
                         <input

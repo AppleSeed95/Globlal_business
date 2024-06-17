@@ -9,6 +9,7 @@ export const login = (data) => {
             const { data: response } = await axios.post('http://localhost:8000/login', data);
             if (response.success) {
                 localStorage.setItem('userToken', response.result.token);
+                localStorage.setItem('userCredential', JSON.stringify(data));
                 dispatch({ type: LOGIN_SUCCESS, payload: response.result.token });
             } else {
                 dispatch({ type: LOGIN_FAILURE, error: response });
@@ -22,5 +23,6 @@ export const logout = () => {
     return async (dispatch) => {
         dispatch({ type: LOGOUT });
         localStorage.removeItem('userToken');
+        localStorage.removeItem('userCredential');
     };
 };
