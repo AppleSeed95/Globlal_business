@@ -1,15 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { message, Input, Select } from 'antd';
-import {
-    LoadingOutlined,
-} from '@ant-design/icons';
+import { LoadingOutlined, } from '@ant-design/icons';
 import { Table, Empty, Spin } from "antd"
+import { useSelector } from "react-redux";
 
 
 
 
 const URLForm = ({ set_ticket_info }) => {
+    const { loggedIn } = useSelector((state) => state.data)
+
+
     const [messageApi, contextHolder] = message.useMessage();
     const [isLoading, setIsLoading] = useState(false);
     const [url, setUrl] = useState('');
@@ -44,6 +46,7 @@ const URLForm = ({ set_ticket_info }) => {
         },
         {
             title: 'detail',
+            width: '40%',
             dataIndex: 'detail',
             key: 'detail',
         },
@@ -70,6 +73,20 @@ const URLForm = ({ set_ticket_info }) => {
 
 
     const getTicketInfo = async () => {
+        if (!loggedIn) {
+            messageApi.open({
+                type: 'warning',
+                content: 'ログインは必須です'
+            });
+            return;
+        }
+        if (!url || url === '') {
+            messageApi.open({
+                type: 'warning',
+                content: '有効なURLを入力してください'
+            });
+            return;
+        }
         try {
             setIsLoading(true);
             const { data } = await axios.post('http://localhost:8000/get-ticket', { url });
@@ -80,7 +97,6 @@ const URLForm = ({ set_ticket_info }) => {
             });
 
         } catch (e) {
-            console.log(e);
             messageApi.open({
                 type: 'warning',
                 content: 'エラーが発生した'

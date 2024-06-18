@@ -6,7 +6,6 @@ import axios from 'axios';
 import {
     LoadingOutlined,
 } from '@ant-design/icons';
-import Password from 'antd/es/input/Password';
 
 
 const Settings = ({ ticket_info }) => {
@@ -20,7 +19,6 @@ const Settings = ({ ticket_info }) => {
         console.log('onOk: ', value);
     };
     useEffect(() => {
-        console.log('received', ticket_info);
         setIsFree(ticket_info?.ticket.price === 0);
     }, [ticket_info]);
     const handlePurchase = async () => {
@@ -29,6 +27,7 @@ const Settings = ({ ticket_info }) => {
                 type: 'warning',
                 content: '情報を正しく設定してください'
             });
+            return;
         }
         try {
             setIsLoading(true);
@@ -39,14 +38,15 @@ const Settings = ({ ticket_info }) => {
                 event_cname: ticket_info.eventInfo.eventName,
                 ticket_type: ticket_info.ticket.type,
                 [`ticket_id_${ticket_info.ticket.id}`]: ticket_info.ticket.ticket_cnt,
-                payment_method: setting._payMethod,
+                payment_method: setting?._payMethod,
+                selected_cvs_code: setting._payCvs,
                 email: credential.email,
                 password: credential.password
             });
             console.log(data);
             messageApi.open({
                 type: 'success',
-                content: 'success'
+                content: 'チケットの購入が成功しました'
             });
 
         } catch (e) {
@@ -100,9 +100,17 @@ const Settings = ({ ticket_info }) => {
                 <div
                     className="w-full">
                     <Select
+                        disabled={setting?._payMethod !== '1'}
                         className='w-full h-[45px]'
+                        onChange={(e) => {
+                            setSetting({ ...setting, _payCvs: e })
+                        }}
                     >
-                        <Select.Option value="sample">Sample</Select.Option>
+                        <Select.Option value="002">ローソン</Select.Option>
+                        <Select.Option value="016">ファミリーマート</Select.Option>
+                        <Select.Option value="005">ミニストップ</Select.Option>
+                        <Select.Option value="010">デイリーヤマザキ</Select.Option>
+                        <Select.Option value="018">セイコーマート</Select.Option>
                     </Select>
                 </div>
                 <button
