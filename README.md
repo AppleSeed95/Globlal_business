@@ -1,6 +1,9 @@
 # How to run the frontend development server
 
 first, you need to install node.js -v20.11.0
+second, download the frontend project
+### `git clone https://github.com/AppleSeed95/Globlal_business.git`
+
 
 ## Steps 
 
