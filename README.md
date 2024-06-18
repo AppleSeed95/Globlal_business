@@ -1,20 +1,18 @@
-# How to run the frontend development server
+# フロントエンド開発サーバーの実行方法
 
-first, you need to install node.js -v20.11.0.\
-second, download the frontend project
+まず、node.js -v20.11.0 をインストールする必要があります。\
+次に、フロントエンドプロジェクトをダウンロードします
 ### `git clone https://github.com/AppleSeed95/Globlal_business.git`
 
 
-## Steps 
+## 手順
 
-In the project directory, you can run:
+プロジェクト ディレクトリで、次のコマンドを実行できます。
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+アプリを開発モードで実行します。\
+[http://localhost:3000](http://localhost:3000) を開いてブラウザで表示します。
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
 
