@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 
 
-const Settings = ({ ticket_info }) => {
+const Settings = ({ ticket_info, url }) => {
     const { token } = useSelector((state) => state.data)
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -44,22 +44,30 @@ const Settings = ({ ticket_info }) => {
             return;
         }
         try {
-            const { data: { data: _time } } = await axios.post('http://localhost:8000/calc-time', { ticketTime, beforeTime });
-            if (_time > 0) {
-                setShowProgress(true);
-                let passSeconds = 0;
-                const interval = setInterval(() => {
-                    passSeconds++;
-                    const progress = parseInt(passSeconds / _time * 100)
-                    setPercent(progress);
-                    if (progress >= 100) {
-                        clearInterval(interval)
-                    }
-                }, 1000);
+            let delayTime = 0;
+            if (ticketTime !== "") {
+                const { data: { data: _time } } = await axios.post('http://localhost:8000/calc-time', { ticketTime, beforeTime });
+                delayTime = _time;
+                if (_time > 0) {
+                    setShowProgress(true);
+                    let passSeconds = 0;
+                    const interval = setInterval(() => {
+                        passSeconds++;
+                        const progress = parseInt(passSeconds / _time * 100)
+                        setPercent(progress);
+                        if (progress >= 100) {
+                            clearInterval(interval)
+                        }
+                    }, 1000);
+                }
+                await delay(_time * 1000);
             }
-            await delay(_time * 1000);
             setIsLoading(true);
-            const { data } = await axios.post('http://localhost:8000/purchase-ticket', {
+            const requestUrl = `http://localhost:8000/${(!isFree && setting?._payMethod === '0') ? 'purchase-credit-ticket' : 'purchase-ticket'}`;
+            const { data } = await axios.post(requestUrl, {
+                event_url: url,
+                ticket_id: ticket_info.ticket.id,
+                ticket_cnt: ticket_info.ticket.ticket_cnt,
                 utoken: token,
                 event_id: ticket_info.eventInfo.eventId,
                 event_cname: ticket_info.eventInfo.eventName,
@@ -68,7 +76,7 @@ const Settings = ({ ticket_info }) => {
                 payment_method: setting?._payMethod,
                 selected_cvs_code: setting?._payCvs,
                 security_code: isFree ? null : setting?._securityCode,
-                time: _time,
+                time: delayTime,
                 email: credential.email,
                 password: credential.password
             });

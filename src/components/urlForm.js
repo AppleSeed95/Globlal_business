@@ -8,10 +8,8 @@ import { useSelector } from "react-redux";
 
 
 
-const URLForm = ({ set_ticket_info }) => {
+const URLForm = ({ set_ticket_info, set_url }) => {
     const { loggedIn } = useSelector((state) => state.data)
-
-
     const [messageApi, contextHolder] = message.useMessage();
     const [isLoading, setIsLoading] = useState(false);
     const [url, setUrl] = useState('');
@@ -89,6 +87,7 @@ const URLForm = ({ set_ticket_info }) => {
         }
         try {
             setIsLoading(true);
+            set_url(url)
             const { data } = await axios.post('http://localhost:8000/get-ticket', { url });
             setData(data);
             messageApi.open({

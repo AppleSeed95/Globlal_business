@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 function App() {
   const [ticket_info, set_ticket_info] = useState(null);
+  const [url, set_url] = useState('');
   return (
     <div className="App">
       <EffectTrigger />
@@ -14,8 +15,8 @@ function App() {
       <div className='w-[60%] h-[85vh] flex flex-col gap-[10px] mx-auto mt-[10vh] p-[20px] pt-[100px] bg-white rounded-lg relative shadow-lg'>
         <div className='title mx-auto bg-[#1cb800] w-[30%] left-[35%] text-white rounded-lg p-[30px] px-[50px] text-[30px] absolute top-[-50px]'>Live Pocket</div>
         <Login />
-        <URLForm set_ticket_info={set_ticket_info} />
-        <Settings ticket_info={ticket_info} />
+        <URLForm set_ticket_info={set_ticket_info} set_url={set_url} />
+        <Settings url={url} ticket_info={ticket_info} />
       </div>
     </div>
   );
