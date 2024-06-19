@@ -120,7 +120,7 @@ const URLForm = ({ set_ticket_info }) => {
                     {isLoading && <LoadingOutlined />} チケット情報入手
                 </button>
             </div>
-            {<div className='w-full overflow-y-scroll rounded-lg h-[400px]  px-[10px]'>
+            {<div className='w-full overflow-y-scroll rounded-lg h-full  px-[10px]'>
                 {
                     !data &&
                     <div className="h-full flex items-center justify-center">

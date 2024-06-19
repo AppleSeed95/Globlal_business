@@ -1,10 +1,11 @@
-import { DatePicker, InputNumber, Select, message } from 'antd';
+import { DatePicker, InputNumber, Input, Select, message, Progress } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import axios from 'axios';
 import {
     LoadingOutlined,
+    ClockCircleOutlined
 } from '@ant-design/icons';
 
 
@@ -15,12 +16,25 @@ const Settings = ({ ticket_info }) => {
     const [setting, setSetting] = useState(null);
     const [isFree, setIsFree] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [ticketTime, setTicketTime] = useState('');
+    const [beforeTime, setBeforeTime] = useState(0);
+    const [percent, setPercent] = useState(0);
+    const [showProgress, setShowProgress] = useState(false);
+
+    const credential = JSON.parse(localStorage.getItem('userCredential'));
+
     const onDateTimePick = (value) => {
-        console.log('onOk: ', value);
+        const dateString = value.format('YYYY-MM-DD HH:mm:ss');
+        setTicketTime(dateString);
     };
     useEffect(() => {
+        if (ticket_info) {
+            setPercent(0);
+            setShowProgress(false);
+        }
         setIsFree(ticket_info?.ticket.price === 0);
     }, [ticket_info]);
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const handlePurchase = async () => {
         if (!ticket_info || !setting) {
             messageApi.open({
@@ -30,8 +44,21 @@ const Settings = ({ ticket_info }) => {
             return;
         }
         try {
+            const { data: { data: _time } } = await axios.post('http://localhost:8000/calc-time', { ticketTime, beforeTime });
+            if (_time > 0) {
+                setShowProgress(true);
+                let passSeconds = 0;
+                const interval = setInterval(() => {
+                    passSeconds++;
+                    const progress = parseInt(passSeconds / _time * 100)
+                    setPercent(progress);
+                    if (progress >= 100) {
+                        clearInterval(interval)
+                    }
+                }, 1000);
+            }
+            await delay(_time * 1000);
             setIsLoading(true);
-            const credential = JSON.parse(localStorage.getItem('userCredential'));
             const { data } = await axios.post('http://localhost:8000/purchase-ticket', {
                 utoken: token,
                 event_id: ticket_info.eventInfo.eventId,
@@ -39,16 +66,23 @@ const Settings = ({ ticket_info }) => {
                 ticket_type: ticket_info.ticket.type,
                 [`ticket_id_${ticket_info.ticket.id}`]: ticket_info.ticket.ticket_cnt,
                 payment_method: setting?._payMethod,
-                selected_cvs_code: setting._payCvs,
+                selected_cvs_code: setting?._payCvs,
+                security_code: isFree ? null : setting?._securityCode,
+                time: _time,
                 email: credential.email,
                 password: credential.password
             });
-            console.log(data);
-            messageApi.open({
-                type: 'success',
-                content: 'チケットの購入が成功しました'
-            });
-
+            if (data?.status === 'fail') {
+                messageApi.open({
+                    type: 'warning',
+                    content: data.data.errmsg
+                });
+            } else {
+                messageApi.open({
+                    type: 'success',
+                    content: 'チケットの購入が成功しました'
+                });
+            }
         } catch (e) {
             messageApi.open({
                 type: 'warning',
@@ -56,28 +90,28 @@ const Settings = ({ ticket_info }) => {
             });
         }
         setIsLoading(false);
-        // console.log(ticket_info);
-        // console.log(setting);
+        setShowProgress(false);
     }
     return (
         <>
             {contextHolder}
-
+            {showProgress && <div className='flex items-center gap-[10px] justify-center'>
+                <ClockCircleOutlined className='text-gray' />
+                <Progress percent={percent} />
+            </div>}
             <div className='flex gap-[10px] w-full'>
                 <div className="w-full">
                     <DatePicker
                         className='w-full h-[45px]'
                         placeholder='入力時間'
                         showTime
-                        onChange={(value, dateString) => {
-                            console.log('Selected Time: ', value);
-                            console.log('Formatted Selected Time: ', dateString);
-                        }}
                         onOk={onDateTimePick}
                     />
                 </div>
                 <div className="w-full h-[45px]">
-                    <InputNumber className='w-full' />
+                    <InputNumber
+                        onChange={(value) => setBeforeTime(value)}
+                        className='w-full' />
                 </div>
                 <div className="w-full h-[45px]">
                     <InputNumber className='w-full' />
@@ -99,25 +133,35 @@ const Settings = ({ ticket_info }) => {
                 </div>
                 <div
                     className="w-full">
-                    <Select
-                        disabled={setting?._payMethod !== '1'}
-                        className='w-full h-[45px]'
-                        onChange={(e) => {
-                            setSetting({ ...setting, _payCvs: e })
-                        }}
-                    >
-                        <Select.Option value="002">ローソン</Select.Option>
-                        <Select.Option value="016">ファミリーマート</Select.Option>
-                        <Select.Option value="005">ミニストップ</Select.Option>
-                        <Select.Option value="010">デイリーヤマザキ</Select.Option>
-                        <Select.Option value="018">セイコーマート</Select.Option>
-                    </Select>
+                    {setting?._payMethod === '1' ?
+                        <Select
+                            disabled={setting?._payMethod !== '1'}
+                            className='w-full h-[45px]'
+                            onChange={(e) => {
+                                setSetting({ ...setting, _payCvs: e })
+                            }}
+                        >
+                            <Select.Option value="002">ローソン</Select.Option>
+                            <Select.Option value="016">ファミリーマート</Select.Option>
+                            <Select.Option value="005">ミニストップ</Select.Option>
+                            <Select.Option value="010">デイリーヤマザキ</Select.Option>
+                            <Select.Option value="018">セイコーマート</Select.Option>
+                        </Select> :
+                        <Input placeholder='セキュリティコード'
+                            disabled={isFree}
+                            onChange={({ target: { value } }) => setSetting({ ...setting, _securityCode: value })}
+                            className='w-full' />}
+
                 </div>
                 <button
                     onClick={handlePurchase}
                     className='bg-[#25a0f7] shadow-lg w-full text-white rounded-lg'>
-                    <div className='flex items-center justify-center'>
-                        {isLoading && <LoadingOutlined />}
+                    <div className='flex items-center justify-center gap-[10px]'>
+                        {showProgress && percent < 100 ?
+                            <ClockCircleOutlined />
+                            :
+                            isLoading && <LoadingOutlined />
+                        }
                         <div>実行</div>
                     </div>
                 </button>
