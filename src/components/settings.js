@@ -18,6 +18,7 @@ const Settings = ({ ticket_info, url }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [ticketTime, setTicketTime] = useState('');
     const [beforeTime, setBeforeTime] = useState(0);
+    const [updateInterval, setUpdateInterval] = useState(1)
     const [percent, setPercent] = useState(0);
     const [showProgress, setShowProgress] = useState(false);
 
@@ -43,6 +44,13 @@ const Settings = ({ ticket_info, url }) => {
             });
             return;
         }
+        if ((!isFree && setting?._payMethod === '0') && (!setting?._securityCode || setting?._securityCode === '')) {
+            messageApi.open({
+                type: 'warning',
+                content: 'セキュリティコードを入力してください。'
+            });
+            return;
+        }
         try {
             let delayTime = 0;
             if (ticketTime !== "") {
@@ -51,6 +59,7 @@ const Settings = ({ ticket_info, url }) => {
                 if (_time > 0) {
                     setShowProgress(true);
                     let passSeconds = 0;
+                    const updateSecond = updateInterval > 0 ? updateInterval : 1;
                     const interval = setInterval(() => {
                         passSeconds++;
                         const progress = parseInt(passSeconds / _time * 100)
@@ -58,28 +67,42 @@ const Settings = ({ ticket_info, url }) => {
                         if (progress >= 100) {
                             clearInterval(interval)
                         }
-                    }, 1000);
+                    }, updateSecond * 1000);
                 }
                 await delay(_time * 1000);
             }
             setIsLoading(true);
             const requestUrl = `http://localhost:8000/${(!isFree && setting?._payMethod === '0') ? 'purchase-credit-ticket' : 'purchase-ticket'}`;
-            const { data } = await axios.post(requestUrl, {
-                event_url: url,
-                ticket_id: ticket_info.ticket.id,
-                ticket_cnt: ticket_info.ticket.ticket_cnt,
-                utoken: token,
-                event_id: ticket_info.eventInfo.eventId,
-                event_cname: ticket_info.eventInfo.eventName,
-                ticket_type: ticket_info.ticket.type,
-                [`ticket_id_${ticket_info.ticket.id}`]: ticket_info.ticket.ticket_cnt,
-                payment_method: setting?._payMethod,
-                selected_cvs_code: setting?._payCvs,
-                security_code: isFree ? null : setting?._securityCode,
-                time: delayTime,
-                email: credential.email,
-                password: credential.password
-            });
+            const requestData = (!isFree && setting?._payMethod === '0') ?
+                {
+                    event_url: url,
+                    ticket_id_origin: ticket_info.ticket.id,
+                    ticket_cnt: ticket_info.ticket.ticket_cnt,
+                    utoken: token,
+                    event_id: ticket_info.eventInfo.eventId,
+                    event_cname: ticket_info.eventInfo.eventName,
+                    ticket_type: ticket_info.ticket.type,
+                    [`ticket_id_${ticket_info.ticket.id}`]: ticket_info.ticket.ticket_cnt,
+                    payment_method: setting?._payMethod,
+                    selected_cvs_code: setting?._payCvs,
+                    security_code: isFree ? null : setting?._securityCode,
+                    time: delayTime,
+                    email: credential.email,
+                    password: credential.password
+                } : {
+                    utoken: token,
+                    event_id: ticket_info.eventInfo.eventId,
+                    event_cname: ticket_info.eventInfo.eventName,
+                    ticket_type: ticket_info.ticket.type,
+                    [`ticket_id_${ticket_info.ticket.id}`]: ticket_info.ticket.ticket_cnt,
+                    payment_method: setting?._payMethod,
+                    selected_cvs_code: setting?._payCvs,
+                    time: delayTime,
+                    email: credential.email,
+                    password: credential.password,
+                    security_code: isFree ? null : setting?._securityCode,
+                }
+            const { data } = await axios.post(requestUrl, requestData);
             if (data?.status === 'fail') {
                 messageApi.open({
                     type: 'warning',
@@ -118,16 +141,21 @@ const Settings = ({ ticket_info, url }) => {
                 </div>
                 <div className="w-full h-[45px]">
                     <InputNumber
+                        placeholder='時間の何秒前か'
                         onChange={(value) => setBeforeTime(value)}
                         className='w-full' />
                 </div>
                 <div className="w-full h-[45px]">
-                    <InputNumber className='w-full' />
+                    <InputNumber
+                        placeholder='更新周期(既定値1s)'
+                        onChange={(value) => setUpdateInterval(value)}
+                        className='w-full' />
                 </div>
             </div>
             <div className='flex gap-[10px] w-full'>
                 <div className="w-full h-[45px]">
                     <Select
+                        placeholder='支払方法'
                         value={setting?._payMethod}
                         onChange={(e) => {
                             setSetting({ ...setting, _payMethod: e })
