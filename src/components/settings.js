@@ -190,7 +190,11 @@ const Settings = ({ ticket_info, url }) => {
 
                 </div>
                 <button
-                    onClick={handlePurchase}
+                    onClick={() => {
+                        if (!showProgress) {
+                            handlePurchase()
+                        }
+                    }}
                     className='bg-[#25a0f7] shadow-lg w-full text-white rounded-lg'>
                     <div className='flex items-center justify-center gap-[10px]'>
                         {showProgress && percent < 100 ?
