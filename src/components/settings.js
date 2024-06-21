@@ -61,7 +61,7 @@ const Settings = ({ ticket_info, url }) => {
                     let passSeconds = 0;
                     const updateSecond = updateInterval > 0 ? updateInterval : 1;
                     const interval = setInterval(() => {
-                        passSeconds++;
+                        passSeconds += updateSecond;
                         const progress = parseInt(passSeconds / _time * 100)
                         setPercent(progress);
                         if (progress >= 100) {
