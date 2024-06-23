@@ -10,7 +10,7 @@ import {
 
 
 const Settings = ({ ticket_info, url }) => {
-    const { token, email, password } = useSelector((state) => state.data)
+    const { token, email, password, loggedIn } = useSelector((state) => state.data)
 
     const [messageApi, contextHolder] = message.useMessage();
     const [setting, setSetting] = useState(null);
@@ -37,10 +37,10 @@ const Settings = ({ ticket_info, url }) => {
     }, [ticket_info]);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const handlePurchase = async () => {
-        if (!email || !password) {
+        if (!loggedIn) {
             messageApi.open({
                 type: 'warning',
-                content: 'アカウント情報を正しく入力してください'
+                content: 'まずログインする必要があります。'
             });
             return;
         }

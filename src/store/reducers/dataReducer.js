@@ -14,7 +14,7 @@ const dataReducer = (state = initialState, action) => {
         case LOGIN_REQUEST:
             return { ...state, loading: true };
         case LOGIN_SUCCESS:
-            return { ...state, loading: false, loggedIn: true, token: action.payload.token, email: action.payload.email, password: action.payload.password };
+            return { ...state, loading: false, loggedIn: true, error: null, token: action.payload.token, email: action.payload.email, password: action.payload.password };
         case LOGIN_FAILURE:
             return { ...state, loading: false, loggedIn: false, error: action.error };
         case LOGOUT:
