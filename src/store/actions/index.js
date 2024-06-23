@@ -10,7 +10,14 @@ export const login = (data) => {
             if (response.success) {
                 localStorage.setItem('userToken', response.result.token);
                 localStorage.setItem('userCredential', JSON.stringify(data));
-                dispatch({ type: LOGIN_SUCCESS, payload: response.result.token });
+                dispatch({
+                    type: LOGIN_SUCCESS, payload:
+                    {
+                        token: response.result.token,
+                        email: data.email,
+                        password: data.password
+                    }
+                });
             } else {
                 dispatch({ type: LOGIN_FAILURE, error: response });
             }

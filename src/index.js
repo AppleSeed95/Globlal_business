@@ -6,15 +6,15 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import store from './store';
 
-import { LOGIN_SUCCESS } from './store/actions/type';
+// import { LOGIN_SUCCESS } from './store/actions/type';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const savedToken = localStorage.getItem('userToken');
+// const savedToken = localStorage.getItem('userToken');
 
 
-if (savedToken) {
-  store.dispatch({ type: LOGIN_SUCCESS, payload: savedToken });
-}
+// if (savedToken) {
+//   store.dispatch({ type: LOGIN_SUCCESS, payload: savedToken });
+// }
 
 
 root.render(

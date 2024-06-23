@@ -10,7 +10,7 @@ import {
 
 
 const Settings = ({ ticket_info, url }) => {
-    const { token } = useSelector((state) => state.data)
+    const { token, email, password } = useSelector((state) => state.data)
 
     const [messageApi, contextHolder] = message.useMessage();
     const [setting, setSetting] = useState(null);
@@ -22,7 +22,7 @@ const Settings = ({ ticket_info, url }) => {
     const [percent, setPercent] = useState(0);
     const [showProgress, setShowProgress] = useState(false);
 
-    const credential = JSON.parse(localStorage.getItem('userCredential'));
+    // const credential = JSON.parse(localStorage.getItem('userCredential'));
 
     const onDateTimePick = (value) => {
         const dateString = value.format('YYYY-MM-DD HH:mm:ss');
@@ -37,6 +37,13 @@ const Settings = ({ ticket_info, url }) => {
     }, [ticket_info]);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const handlePurchase = async () => {
+        if (!email || !password) {
+            messageApi.open({
+                type: 'warning',
+                content: 'アカウント情報を正しく入力してください'
+            });
+            return;
+        }
         if (!ticket_info || !setting) {
             messageApi.open({
                 type: 'warning',
@@ -87,8 +94,8 @@ const Settings = ({ ticket_info, url }) => {
                     selected_cvs_code: setting?._payCvs,
                     security_code: isFree ? null : setting?._securityCode,
                     time: delayTime,
-                    email: credential.email,
-                    password: credential.password
+                    email,
+                    password
                 } : {
                     utoken: token,
                     event_id: ticket_info.eventInfo.eventId,
@@ -98,8 +105,8 @@ const Settings = ({ ticket_info, url }) => {
                     payment_method: setting?._payMethod,
                     selected_cvs_code: setting?._payCvs,
                     time: delayTime,
-                    email: credential.email,
-                    password: credential.password,
+                    email,
+                    password,
                     security_code: isFree ? null : setting?._securityCode,
                 }
             const { data } = await axios.post(requestUrl, requestData);
